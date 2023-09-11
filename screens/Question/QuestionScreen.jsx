@@ -3,11 +3,14 @@ import questionStyle from './QuestionStyle';
 import SplashImage from '../../assets/image.png';
 import HappyImage from '../../assets/happy.png';
 import {useEffect, useState} from 'react';
-import {questions} from '../../data';
+// import {questions} from '../../data';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import {useRoute} from '@react-navigation/native';
 
 export default function QuestionScreen(props) {
+  const route = useRoute();
   const {navigation} = props;
+  const {questions} = route.params;
 
   const [timer, setTimer] = useState(30);
   const [quantityQuestion, setQuantityQuestion] = useState(0);
@@ -68,7 +71,7 @@ export default function QuestionScreen(props) {
                 onPress: () => navigation.navigate('Home'),
               },
             ]);
-            return 0;
+            return prevQuantity--;
           } else {
             initialScreen();
           }
@@ -94,70 +97,87 @@ export default function QuestionScreen(props) {
   return (
     <View style={questionStyle.container}>
       <Image style={questionStyle.image} source={SplashImage} />
-      <View style={questionStyle.wrapper}>
-        <View style={questionStyle.question}>
-          <View style={questionStyle.timer}>
-            <Text style={questionStyle.timerText}>{timer}</Text>
+      {questions[quantityQuestion] && (
+        <View style={questionStyle.wrapper}>
+          <View style={questionStyle.question}>
+            <View style={questionStyle.timer}>
+              <Text style={questionStyle.timerText}>{timer}</Text>
+            </View>
+            {questions[quantityQuestion] &&
+              questions[quantityQuestion].image && (
+                <Image
+                  style={{
+                    width: 100,
+                    height: 100,
+                    objectFit: 'cover',
+                    marginBottom: 20,
+                    borderRadius: 20,
+                  }}
+                  source={{uri: questions[quantityQuestion].image}}
+                />
+              )}
+            <Text>{questions[quantityQuestion].title}</Text>
           </View>
-          <Text>{questions[quantityQuestion].title}</Text>
-        </View>
+          <View style={questionStyle.option}>
+            {questions[quantityQuestion].answers.map((answer, index) => {
+              let style = [questionStyle.text];
+              let background;
 
-        <View style={questionStyle.option}>
-          {questions[quantityQuestion].answers.map((answer, index) => {
-            let style = [questionStyle.text];
-            let background;
-
-            if (selectedAnswerIndex === index) {
-              if (typeof isCorrect === 'undefined' && isCorrect === undefined) {
-                background = 'orange';
-              } else if (isCorrect === true) {
-                background = 'green';
-              } else {
-                background = 'red';
-              }
-            } else if (isCorrect === false) {
-              if (
-                questions[quantityQuestion].answers.findIndex(
-                  answer => answer.isCorrect,
-                ) === index
-              ) {
-                background = 'green';
+              if (selectedAnswerIndex === index) {
+                if (
+                  typeof isCorrect === 'undefined' &&
+                  isCorrect === undefined
+                ) {
+                  background = 'orange';
+                } else if (isCorrect === true) {
+                  background = 'green';
+                } else {
+                  background = 'red';
+                }
+              } else if (isCorrect === false) {
+                if (
+                  questions[quantityQuestion].answers.findIndex(
+                    answer => answer.isCorrect,
+                  ) === index
+                ) {
+                  background = 'green';
+                } else {
+                  background = 'rgba(0, 0, 0, 0.2)';
+                }
               } else {
                 background = 'rgba(0, 0, 0, 0.2)';
               }
-            } else {
-              background = 'rgba(0, 0, 0, 0.2)';
-            }
 
-            style.push({backgroundColor: background});
-            return (
-              <TouchableOpacity
-                disabled={!isPlaying}
-                key={index}
-                style={{position: 'relative'}}
-                onPress={() => {
-                  setSelectedAnswerIndex(index);
-                }}>
-                {selectedAnswerIndex === index && isCorrect === true && (
-                  <Image
-                    source={HappyImage}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 5,
-                      objectFit: 'cover',
-                    }}
-                  />
-                )}
-                <Text style={style}>{answer.title}</Text>
-              </TouchableOpacity>
-            );
-          })}
+              style.push({backgroundColor: background});
+              return (
+                <TouchableOpacity
+                  disabled={!isPlaying}
+                  key={index}
+                  style={{position: 'relative'}}
+                  onPress={() => {
+                    setSelectedAnswerIndex(index);
+                  }}>
+                  {selectedAnswerIndex === index && isCorrect === true && (
+                    <Image
+                      source={HappyImage}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 5,
+                        objectFit: 'cover',
+                      }}
+                    />
+                  )}
+                  <Text style={style}>{answer.title}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }
