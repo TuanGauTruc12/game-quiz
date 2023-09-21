@@ -3,7 +3,6 @@ import questionStyle from './QuestionStyle';
 import SplashImage from '../../assets/image.png';
 import HappyImage from '../../assets/happy.png';
 import {useEffect, useState} from 'react';
-// import {questions} from '../../data';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {useRoute} from '@react-navigation/native';
 
@@ -33,6 +32,13 @@ export default function QuestionScreen(props) {
 
       if (timer === 0) {
         clearInterval(interval);
+        setIsPlaying(false);
+        Alert.alert('Game over', 'Time to answer questions is over!', [
+          {
+            text: 'Return to home page',
+            onPress: () => navigation.navigate('Home'),
+          },
+        ]);
       }
 
       return () => clearInterval(interval);
@@ -65,12 +71,16 @@ export default function QuestionScreen(props) {
         setQuantityQuestion(prevQuantity => {
           prevQuantity++;
           if (prevQuantity === questions.length) {
-            Alert.alert('Chúc mừng', 'Chúc mừng bạn hoàn tất cả câu hỏi!', [
-              {
-                text: 'Quay về trang chủ',
-                onPress: () => navigation.navigate('Home'),
-              },
-            ]);
+            Alert.alert(
+              'Congratulations',
+              'Congratulations on completing all questions!',
+              [
+                {
+                  text: 'Return to home page',
+                  onPress: () => navigation.navigate('Home'),
+                },
+              ],
+            );
             return prevQuantity--;
           } else {
             initialScreen();
@@ -83,7 +93,7 @@ export default function QuestionScreen(props) {
       };
     } else if (isCorrect === false && typeof isCorrect === 'boolean') {
       let timeOutCorrect = setTimeout(() => {
-        Alert.alert('Wrong', 'Bạn đã trả lời sai', [
+        Alert.alert('Wrong', 'You answered wrong!', [
           {
             text: 'Quay về trang chủ',
             onPress: () => navigation.navigate('Home'),
